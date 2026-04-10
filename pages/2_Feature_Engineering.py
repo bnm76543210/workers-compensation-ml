@@ -31,11 +31,18 @@ c3.metric("Новых признаков", df_fe.shape[1] - df_raw.shape[1])
 new_features = [c for c in df_fe.columns if c not in df_raw.columns]
 st.subheader("Созданные признаки")
 fe_desc = {
-    'Age_x_WeeklyPay':    'Взаимодействие возраста и зарплаты',
-    'Estimate_per_Pay':   'Отношение начальной оценки к зарплате',
-    'HasDependents':      'Бинарный: есть иждивенцы (1/0)',
-    'IsFullTime':         'Бинарный: полная занятость (>=35 ч/нед)',
-    'Log_InitialEstimate':'Лог-преобразование начальной оценки',
+    'Age_x_WeeklyPay':      'Взаимодействие возраста и зарплаты',
+    'Estimate_per_Pay':     'Отношение начальной оценки к зарплате',
+    'HasDependents':        'Бинарный: есть иждивенцы (1/0)',
+    'IsFullTime':           'Бинарный: полная занятость (>=35 ч/нед)',
+    'Log_InitialEstimate':  'Лог-преобразование начальной оценки',
+    'Accident_Year':        'Год несчастного случая',
+    'Accident_Month':       'Месяц несчастного случая',
+    'Accident_DayOfWeek':   'День недели несчастного случая',
+    'Reported_Year':        'Год подачи заявки',
+    'Reported_Month':       'Месяц подачи заявки',
+    'Reported_DayOfWeek':   'День недели подачи заявки',
+    'ReportDelay_Days':     'Задержка подачи заявки (дней)',
 }
 desc_df = pd.DataFrame([
     {"Признак": f, "Описание": fe_desc.get(f, "—")}
