@@ -20,16 +20,16 @@ st.markdown("""
 st.markdown("---")
 
 col1, col2, col3, col4 = st.columns(4)
-col1.info("📊 **Задача 1**\nДетальный анализ данных")
-col2.info("🔧 **Задача 2**\nFeature Engineering")
-col3.info("🤖 **Задача 3**\nМощные модели (XGBoost, LightGBM)")
-col4.info("⚙️ **Задача 4**\nOptuna оптимизация")
+col1.info("🗂️ **Задача 1**\nСегментация данных")
+col2.info("📊 **Задача 2**\nДетальный анализ данных")
+col3.info("🔧 **Задача 3**\nFeature Engineering")
+col4.info("🤖 **Задача 4**\nМощные модели (XGBoost, LightGBM)")
 
 col5, col6, col7, col8 = st.columns(4)
-col5.info("📡 **Задача 5**\nClearML интеграция")
-col6.info("🔍 **Задача 6**\nАнализ ошибок")
+col5.info("⚙️ **Задача 5**\nOptuna оптимизация")
+col6.info("📡 **Задача 6**\nClearML интеграция")
 col7.info("💡 **Задача 7**\nSHAP интерпретируемость")
-col8.info("🗂️ **Задача 0**\nСегментация данных")
+col8.info("🔍 **Задача 8**\nАнализ ошибок")
 
 st.markdown("---")
 st.markdown("### Навигация")

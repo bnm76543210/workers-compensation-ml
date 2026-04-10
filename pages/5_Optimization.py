@@ -1,5 +1,5 @@
 """
-Задача 4: Оптимизация гиперпараметров с Optuna
+Задача 5: Оптимизация гиперпараметров с Optuna
 """
 import streamlit as st
 import pandas as pd

@@ -1,5 +1,5 @@
 """
-Задача 6: Анализ ошибок модели
+Задача 8: Анализ ошибок модели
 """
 import streamlit as st
 import pandas as pd

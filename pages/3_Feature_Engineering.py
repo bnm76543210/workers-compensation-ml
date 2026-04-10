@@ -1,5 +1,5 @@
 """
-Задача 2: Feature Engineering — создание новых признаков
+Задача 3: Feature Engineering — создание новых признаков
 """
 import streamlit as st
 import pandas as pd

@@ -1,5 +1,5 @@
 """
-Задача 3: Мощные модели — XGBoost, LightGBM, RandomForest
+Задача 4: Мощные модели — XGBoost, LightGBM, RandomForest
 """
 import streamlit as st
 import pandas as pd
