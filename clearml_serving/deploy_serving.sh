@@ -7,28 +7,22 @@ set -e
 echo "=== ClearML Serving Deployment ==="
 echo ""
 
-# Step 1: Install clearml-serving
+# Serving service and model IDs (created 2026-04-10)
+SERVICE_ID="f4898d5556a942c19f571692a97737a6"
+MODEL_ID="c69c03966cad4898bcc6cdd8de3d61db"
+
+# Step 1: Install clearml-serving (if not already installed)
 pip install clearml-serving
 
-# Step 2: Create serving service (run once)
-echo "Creating ClearML Serving service..."
-clearml-serving create --name "Workers Compensation Serving"
+# Step 2: Register model endpoint (already done, kept for reference)
+# clearml-serving --id "$SERVICE_ID" model add \
+#   --engine sklearn \
+#   --endpoint "workers_compensation" \
+#   --preprocess "clearml_serving/preprocess.py" \
+#   --model-id "$MODEL_ID"
 
-# Step 3: Get the service ID from output above, then:
-# Replace <SERVICE_ID> with the actual ID printed above
-SERVICE_ID=${1:-"<SERVICE_ID>"}
-
-echo ""
-echo "Step 3: Registering model endpoint..."
-clearml-serving --id "$SERVICE_ID" model add \
-  --engine sklearn \
-  --endpoint "workers_compensation" \
-  --preprocess "clearml_serving/preprocess.py" \
-  --name "Workers Comp XGBoost" \
-  --project "Workers Compensation"
-
-echo ""
-echo "Step 4: Starting inference container..."
+# Step 3: Start inference container
+echo "Starting inference container..."
 docker run -d \
   --name clearml-serving-inference \
   -v ~/clearml.conf:/root/clearml.conf \
@@ -39,6 +33,8 @@ docker run -d \
 
 echo ""
 echo "=== Deployment complete! ==="
+echo "Serving service ID: $SERVICE_ID"
+echo "Model ID:           $MODEL_ID"
 echo "Inference endpoint: http://localhost:8080/serve/workers_compensation"
 echo ""
 echo "Test with:"
