@@ -117,4 +117,4 @@ logger.report_matplotlib_figure("Optuna History", "optuna", 0, fig)
 plt.close()
 
 task.close()
-print("✅ Эксперимент 2 завершён!")
+print("Experiment 2 done!")

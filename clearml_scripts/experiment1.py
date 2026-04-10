@@ -88,4 +88,4 @@ logger.report_matplotlib_figure("Residuals", "residuals", 0, fig)
 plt.close()
 
 task.close()
-print("✅ Эксперимент 1 завершён!")
+print("Experiment 1 done!")

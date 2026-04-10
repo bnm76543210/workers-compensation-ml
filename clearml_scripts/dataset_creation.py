@@ -57,4 +57,4 @@ dataset.get_logger().report_table(
 )
 
 dataset.finalize(auto_upload=True)
-print(f"\n✅ Датасет создан! ID: {dataset.id}")
+print(f"\nДатасет создан! ID: {dataset.id}")
