@@ -12,11 +12,13 @@ from sklearn.manifold import TSNE
 from sklearn.preprocessing import StandardScaler
 from src.data_loader import load_data
 from src.preprocessing import preprocess, feature_engineering
+from src.logger import log
 import warnings
 warnings.filterwarnings('ignore')
 
 st.set_page_config(page_title="Feature Engineering", layout="wide")
 st.title("Предобработка и Feature Engineering")
+log("=== Страница 3: Feature Engineering загружена ===")
 
 with st.spinner("Загрузка данных..."):
     df     = load_data()
@@ -28,6 +30,8 @@ target = 'UltimateIncurredClaimCost'
 # ── Сравнение до/после ──────────────────────────────────────────────────────
 st.subheader("Количество признаков до и после Feature Engineering")
 c1, c2, c3 = st.columns(3)
+log("Feature Engineering статистика",
+    before=df.shape[1]-1, after=df_fe.shape[1]-1)
 c1.metric("До обработки (исходных)", df.shape[1] - 1)
 c2.metric("После FE", df_fe.shape[1] - 1)
 c3.metric("Новых признаков создано", df_fe.shape[1] - df_raw.shape[1])
@@ -164,7 +168,8 @@ st.subheader("t-SNE — Нелинейная визуализация много
 st.markdown("t-SNE проецирует 22 признака в 2D, сохраняя локальную структуру данных.")
 st.warning("t-SNE вычисляется на 1000 наблюдениях — это может занять ~30 секунд.")
 
-if st.button("Запустить t-SNE", type="primary"):
+if st.button("Запустить t-SNE", type="primary", key="btn_tsne"):
+    log("Пользователь: нажата кнопка t-SNE")
     with st.spinner("Вычисление t-SNE (1000 наблюдений)..."):
         idx_tsne = np.random.RandomState(42).choice(
             len(X_scaled), min(1000, len(X_scaled)), replace=False)

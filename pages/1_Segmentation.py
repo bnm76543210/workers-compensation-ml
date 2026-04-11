@@ -13,11 +13,13 @@ from sklearn.ensemble import RandomForestRegressor
 from sklearn.model_selection import train_test_split
 from src.data_loader import load_data
 from src.preprocessing import preprocess, feature_engineering
+from src.logger import log
 import warnings
 warnings.filterwarnings('ignore')
 
 st.set_page_config(page_title="Сегментация", layout="wide")
 st.title("Сегментация данных и анализ по группам")
+log("=== Страница 1: Сегментация загружена ===")
 
 with st.spinner("Загрузка данных..."):
     df   = load_data()
@@ -43,6 +45,7 @@ with tab1:
 
     # Silhouette score
     sil = silhouette_score(X_scaled[:5000], labels_km[:5000])
+    log("K-Means обучен", silhouette=round(sil, 4), n_clusters=st.session_state.get('n_clusters', '?'))
     st.metric("Silhouette Score (K-Means)", f"{sil:.3f}",
               help="От -1 до 1, чем выше — тем лучше разделены кластеры")
 
@@ -156,6 +159,7 @@ with tab2:
     min_samples = col2.slider("min_samples:", 5, 50, 10)
 
     if st.button("Запустить DBSCAN", type="primary", key="dbscan"):
+        log("Пользователь: нажата кнопка DBSCAN")
         with st.spinner("DBSCAN на 5000 наблюдениях..."):
             # PCA до 10 компонент для скорости
             from sklearn.decomposition import PCA
@@ -169,6 +173,8 @@ with tab2:
         n_clusters_db = len(set(labels_db)) - (1 if -1 in labels_db else 0)
         n_noise = (labels_db == -1).sum()
         c1, c2, c3 = st.columns(3)
+        log("DBSCAN завершён", clusters=n_clusters_db, noise=n_noise,
+            noise_pct=round(n_noise/len(labels_db)*100, 1))
         c1.metric("Найдено кластеров", n_clusters_db)
         c2.metric("Выбросов (шум)", f"{n_noise} ({n_noise/len(labels_db)*100:.1f}%)")
         c3.metric("Наблюдений", len(labels_db))

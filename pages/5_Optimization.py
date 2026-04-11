@@ -13,12 +13,14 @@ from sklearn.model_selection import train_test_split, KFold, cross_val_score
 from sklearn.metrics import r2_score, mean_squared_error
 from src.data_loader import load_data
 from src.preprocessing import preprocess, feature_engineering
+from src.logger import log
 import warnings
 warnings.filterwarnings('ignore')
 optuna.logging.set_verbosity(optuna.logging.WARNING)
 
 st.set_page_config(page_title="Оптимизация", layout="wide")
 st.title("Оптимизация гиперпараметров — Optuna + K-Fold CV")
+log("=== Страница 5: Оптимизация загружена ===")
 
 with st.spinner("Загрузка данных..."):
     df = load_data()
@@ -45,6 +47,7 @@ with tab1:
         ["XGBoost", "LightGBM"])
 
     if st.button("Запустить K-Fold CV", type="primary", key="kfold"):
+        log("Пользователь: нажата кнопка K-Fold CV")
         if cv_model_name == "XGBoost":
             cv_model = xgb.XGBRegressor(n_estimators=100, random_state=42,
                                          verbosity=0)
@@ -101,6 +104,7 @@ with tab2:
                                ["XGBoost", "LightGBM"])
 
     if st.button("Запустить оптимизацию", type="primary", key="optuna"):
+        log("Пользователь: нажата кнопка Optuna")
         def objective_xgb(trial):
             params = {
                 'n_estimators':     trial.suggest_int('n_estimators', 50, 300),
@@ -140,6 +144,7 @@ with tab2:
             study.optimize(objective, n_trials=n_trials)
 
         best = study.best_params
+        log("Optuna завершена", best_R2=round(study.best_value, 4), **best)
         st.success(f"Оптимизация завершена! Лучший R2 (CV): "
                    f"{study.best_value:.4f}")
 
@@ -214,8 +219,8 @@ with tab3:
 
     es_rounds = st.slider("Patience (rounds без улучшения):", 5, 50, 20)
 
-    if st.button("Обучить LightGBM с Early Stopping", type="primary",
-                 key="es"):
+    if st.button("Обучить LightGBM с Early Stopping", type="primary", key="es"):
+        log("Пользователь: нажата кнопка Early Stopping", patience=es_rounds)
         Xtr, Xval, ytr, yval = train_test_split(
             X_train, y_train, test_size=0.15, random_state=42)
 
@@ -234,6 +239,8 @@ with tab3:
         best_iter = model_es.best_iteration_
         y_pred_es = model_es.predict(X_test)
         r2_es     = r2_score(y_test, y_pred_es)
+        log("Early Stopping завершён", best_iter=best_iter,
+            saved=500-best_iter, R2=round(r2_es, 4))
 
         c1, c2, c3 = st.columns(3)
         c1.metric("Итераций до остановки", best_iter)

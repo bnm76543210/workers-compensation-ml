@@ -4,8 +4,10 @@
 import pandas as pd
 import numpy as np
 from sklearn.preprocessing import LabelEncoder
+from src.logger import log
 
 def preprocess(df: pd.DataFrame) -> pd.DataFrame:
+    log("preprocess: начало", rows=len(df), cols=df.shape[1])
     df = df.copy()
 
     # ── Числовые признаки ───────────────────────────────────────────────────
@@ -50,9 +52,12 @@ def preprocess(df: pd.DataFrame) -> pd.DataFrame:
     if 'ClaimDescription' in df.columns:
         df = df.drop(columns=['ClaimDescription'])
 
+    log("preprocess: готово", rows=len(df), cols=df.shape[1],
+        nulls=df.isnull().sum().sum())
     return df
 
 def feature_engineering(df: pd.DataFrame) -> pd.DataFrame:
+    log("feature_engineering: начало", cols=df.shape[1])
     df = df.copy()
 
     # ── Признаки взаимодействия ─────────────────────────────────────────────
@@ -81,4 +86,5 @@ def feature_engineering(df: pd.DataFrame) -> pd.DataFrame:
     if 'InitialCaseEstimate' in df.columns:
         df['Log_InitialEstimate'] = np.log1p(df['InitialCaseEstimate'])
 
+    log("feature_engineering: готово", cols=df.shape[1])
     return df

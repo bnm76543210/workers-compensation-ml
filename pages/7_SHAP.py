@@ -10,15 +10,17 @@ import plotly.graph_objects as go
 import plotly.express as px
 import xgboost as xgb
 from sklearn.model_selection import train_test_split
-from sklearn.inspection import PartialDependenceDisplay
 import warnings
 warnings.filterwarnings('ignore')
 
 from src.data_loader import load_data
 from src.preprocessing import preprocess, feature_engineering
+from src.logger import log
 
 st.set_page_config(page_title="Интерпретируемость", layout="wide")
 st.title("Интерпретируемость модели — SHAP, LIME, PDP")
+
+log("=== Страница 7: SHAP/LIME/PDP загружена ===")
 
 with st.spinner("Загрузка и обучение XGBoost..."):
     df    = load_data()
@@ -30,6 +32,7 @@ with st.spinner("Загрузка и обучение XGBoost..."):
         X, y, test_size=0.2, random_state=42)
     model = xgb.XGBRegressor(n_estimators=100, random_state=42, verbosity=0)
     model.fit(X_train, y_train)
+    log("XGBoost обучен", n_estimators=100, X_train_shape=X_train.shape)
 
 st.success("Модель XGBoost обучена!")
 
@@ -47,6 +50,8 @@ with tab1:
         explainer   = shap.TreeExplainer(model)
         sample      = X_test.sample(min(200, len(X_test)), random_state=42)
         shap_values = explainer.shap_values(sample)
+        log("SHAP значения вычислены", sample_size=len(sample),
+            expected_value=round(float(explainer.expected_value), 4))
 
     st.subheader("Summary Plot — важность признаков (глобальная)")
     fig, ax = plt.subplots(figsize=(10, 6))
@@ -64,6 +69,7 @@ with tab1:
 
     st.subheader("Waterfall Plot — объяснение одного предсказания")
     idx = st.slider("Выберите наблюдение:", 0, len(sample)-1, 0)
+    log("Пользователь: SHAP waterfall наблюдение", idx=idx)
     fig3, ax3 = plt.subplots(figsize=(10, 6))
     shap.waterfall_plot(
         shap.Explanation(values=shap_values[idx],
@@ -95,8 +101,10 @@ with tab2:
 
     lime_idx = st.slider("Выберите наблюдение для LIME:", 0,
                           min(499, len(X_test)-1), 0, key="lime_idx")
+    log("Пользователь: LIME наблюдение выбрано", idx=lime_idx)
 
-    if st.button("Объяснить с LIME", type="primary"):
+    if st.button("Объяснить с LIME", type="primary", key="btn_lime"):
+        log("Пользователь: нажата кнопка LIME", idx=lime_idx)
         with st.spinner("LIME вычисляется..."):
             try:
                 import lime
@@ -139,6 +147,9 @@ with tab2:
                 pred_log = model.predict(X_test.values[[lime_idx]])[0]
                 pred_usd = np.expm1(pred_log)
                 real_usd = np.expm1(y_test.values[lime_idx])
+                log("LIME результат", idx=lime_idx,
+                    pred_usd=round(pred_usd, 0), real_usd=round(real_usd, 0),
+                    error_pct=round(abs(pred_usd-real_usd)/max(real_usd,1)*100, 1))
                 c1, c2 = st.columns(2)
                 c1.metric("Прогноз модели", f"${pred_usd:,.0f}")
                 c2.metric("Факт", f"${real_usd:,.0f}")
@@ -159,70 +170,76 @@ with tab3:
     """)
 
     numeric_feats = X.select_dtypes(include=[np.number]).columns.tolist()
+
+    # ── 1D PDP ──────────────────────────────────────────────────────────────
+    st.markdown("#### 1D PDP — зависимость предсказания от одного признака")
     feat1 = st.selectbox("Признак для PDP:", numeric_feats,
                          index=numeric_feats.index('InitialCaseEstimate')
-                         if 'InitialCaseEstimate' in numeric_feats else 0)
+                         if 'InitialCaseEstimate' in numeric_feats else 0,
+                         key="feat1")
 
-    col1, col2 = st.columns(2)
-    with col1:
-        if st.button("Построить 1D PDP", type="primary", key="pdp1d"):
-            with st.spinner("Вычисление PDP..."):
-                # Используем небольшую выборку для скорости
-                sample_pdp = X_test.sample(min(500, len(X_test)),
-                                            random_state=42)
-                feat_idx   = list(X.columns).index(feat1)
-                feature_vals = np.linspace(
-                    float(X[feat1].quantile(0.05)),
-                    float(X[feat1].quantile(0.95)), 50)
-                avg_preds = []
-                for val in feature_vals:
+    if st.button("Построить 1D PDP", type="primary", key="pdp1d"):
+        log("Пользователь: 1D PDP", feat1=feat1)
+        with st.spinner("Вычисление PDP..."):
+            sample_pdp   = X_test.sample(min(500, len(X_test)), random_state=42)
+            feature_vals = np.linspace(
+                float(X[feat1].quantile(0.05)),
+                float(X[feat1].quantile(0.95)), 50)
+            avg_preds = []
+            for val in feature_vals:
+                X_mod = sample_pdp.copy()
+                X_mod[feat1] = val
+                avg_preds.append(np.expm1(model.predict(X_mod)).mean())
+
+        log("1D PDP готов", feat1=feat1, min_pred=round(min(avg_preds),0),
+            max_pred=round(max(avg_preds),0))
+        fig_pdp = go.Figure()
+        fig_pdp.add_trace(go.Scatter(
+            x=feature_vals, y=avg_preds, mode='lines',
+            line=dict(color='steelblue', width=2), name='PDP'))
+        fig_pdp.update_layout(
+            title=f"Partial Dependence Plot: {feat1}",
+            xaxis_title=feat1, yaxis_title="Среднее предсказание ($)",
+            template='plotly_white')
+        st.plotly_chart(fig_pdp, use_container_width=True)
+        st.caption(
+            f"График показывает, как изменяется средняя прогнозируемая "
+            f"стоимость выплаты при изменении '{feat1}', "
+            f"при прочих равных условиях.")
+
+    st.markdown("---")
+
+    # ── 2D PDP ──────────────────────────────────────────────────────────────
+    st.markdown("#### 2D PDP — совместное влияние двух признаков (тепловая карта)")
+    feat2 = st.selectbox("Второй признак (для 2D PDP):", numeric_feats,
+                         index=numeric_feats.index('WeeklyPay')
+                         if 'WeeklyPay' in numeric_feats else 1,
+                         key="feat2")
+
+    if st.button("Построить 2D PDP (heatmap)", type="primary", key="pdp2d"):
+        log("Пользователь: 2D PDP", feat1=feat1, feat2=feat2)
+        with st.spinner("Вычисление 2D PDP..."):
+            sample_pdp = X_test.sample(min(300, len(X_test)), random_state=42)
+            v1 = np.linspace(float(X[feat1].quantile(0.1)),
+                             float(X[feat1].quantile(0.9)), 20)
+            v2 = np.linspace(float(X[feat2].quantile(0.1)),
+                             float(X[feat2].quantile(0.9)), 20)
+            z = np.zeros((len(v2), len(v1)))
+            for i, val1 in enumerate(v1):
+                for j, val2 in enumerate(v2):
                     X_mod = sample_pdp.copy()
-                    X_mod[feat1] = val
-                    avg_preds.append(np.expm1(model.predict(X_mod)).mean())
+                    X_mod[feat1] = val1
+                    X_mod[feat2] = val2
+                    z[j, i] = np.expm1(model.predict(X_mod)).mean()
 
-            fig_pdp = go.Figure()
-            fig_pdp.add_trace(go.Scatter(
-                x=feature_vals, y=avg_preds, mode='lines',
-                line=dict(color='steelblue', width=2),
-                name='PDP'))
-            fig_pdp.update_layout(
-                title=f"Partial Dependence Plot: {feat1}",
-                xaxis_title=feat1,
-                yaxis_title="Среднее предсказание ($)",
-                template='plotly_white')
-            st.plotly_chart(fig_pdp, use_container_width=True)
-            st.caption(
-                f"График показывает, как изменяется средняя прогнозируемая "
-                f"стоимость выплаты при изменении '{feat1}', "
-                f"при прочих равных условиях.")
-
-    with col2:
-        feat2 = st.selectbox("Второй признак (для 2D PDP):", numeric_feats,
-                              index=numeric_feats.index('WeeklyPay')
-                              if 'WeeklyPay' in numeric_feats else 1,
-                              key="feat2")
-        if st.button("Построить 2D PDP (heatmap)", type="primary", key="pdp2d"):
-            with st.spinner("Вычисление 2D PDP..."):
-                sample_pdp = X_test.sample(min(300, len(X_test)),
-                                            random_state=42)
-                v1 = np.linspace(float(X[feat1].quantile(0.1)),
-                                  float(X[feat1].quantile(0.9)), 20)
-                v2 = np.linspace(float(X[feat2].quantile(0.1)),
-                                  float(X[feat2].quantile(0.9)), 20)
-                z = np.zeros((len(v2), len(v1)))
-                for i, val1 in enumerate(v1):
-                    for j, val2 in enumerate(v2):
-                        X_mod = sample_pdp.copy()
-                        X_mod[feat1] = val1
-                        X_mod[feat2] = val2
-                        z[j, i] = np.expm1(model.predict(X_mod)).mean()
-
-            fig_2d = go.Figure(go.Heatmap(
-                x=v1, y=v2, z=z,
-                colorscale='viridis',
-                colorbar=dict(title='Прогноз ($)')))
-            fig_2d.update_layout(
-                title=f"2D PDP: {feat1} x {feat2}",
-                xaxis_title=feat1, yaxis_title=feat2,
-                template='plotly_white')
-            st.plotly_chart(fig_2d, use_container_width=True)
+        log("2D PDP готов", feat1=feat1, feat2=feat2,
+            z_min=round(float(z.min()),0), z_max=round(float(z.max()),0))
+        fig_2d = go.Figure(go.Heatmap(
+            x=v1, y=v2, z=z,
+            colorscale='viridis',
+            colorbar=dict(title='Прогноз ($)')))
+        fig_2d.update_layout(
+            title=f"2D PDP: {feat1} × {feat2}",
+            xaxis_title=feat1, yaxis_title=feat2,
+            template='plotly_white')
+        st.plotly_chart(fig_2d, use_container_width=True)

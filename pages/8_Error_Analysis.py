@@ -11,11 +11,13 @@ from sklearn.model_selection import train_test_split
 from sklearn.metrics import r2_score, mean_squared_error
 from src.data_loader import load_data
 from src.preprocessing import preprocess, feature_engineering
+from src.logger import log
 import warnings
 warnings.filterwarnings('ignore')
 
 st.set_page_config(page_title="Анализ ошибок", layout="wide")
 st.title("Анализ ошибок модели")
+log("=== Страница 8: Анализ ошибок загружена ===")
 
 with st.spinner("Загрузка и обучение..."):
     df   = load_data()
@@ -44,9 +46,14 @@ errors_df = errors_df.sort_values('Абс_ошибка ($)', ascending=False)
 # ── Метрики ──────────────────────────────────────────────────────────────────
 st.subheader("Общие метрики качества")
 m1, m2, m3, m4 = st.columns(4)
-m1.metric("R2",   f"{r2_score(y_test, y_pred):.4f}")
-m2.metric("RMSE (log)", f"{float(np.sqrt(mean_squared_error(y_test, y_pred))):.4f}")
-m3.metric("MAE ($)", f"${errors_df['Абс_ошибка ($)'].mean():,.0f}")
+r2_val   = r2_score(y_test, y_pred)
+rmse_val = float(np.sqrt(mean_squared_error(y_test, y_pred)))
+mae_val  = errors_df['Абс_ошибка ($)'].mean()
+log("XGBoost обучен для анализа ошибок",
+    R2=round(r2_val,4), RMSE_log=round(rmse_val,4), MAE_USD=round(mae_val,0))
+m1.metric("R2",   f"{r2_val:.4f}")
+m2.metric("RMSE (log)", f"{rmse_val:.4f}")
+m3.metric("MAE ($)", f"${mae_val:,.0f}")
 m4.metric("Медиана ошибки ($)", f"${errors_df['Абс_ошибка ($)'].median():,.0f}")
 
 # ── Топ ошибок ───────────────────────────────────────────────────────────────

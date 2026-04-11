@@ -1,8 +1,13 @@
 """
 Главная страница Streamlit-приложения
 Workers Compensation ML System
+
+── ЛОГИРОВАНИЕ ──────────────────────────────────────────────────────────────
+Включить подробные логи в консоль:  изменить DEBUG = True в src/config.py
+Выключить:                          изменить DEBUG = False в src/config.py
 """
 import streamlit as st
+from src.config import DEBUG
 
 st.set_page_config(
     page_title="Workers Compensation ML",
@@ -45,3 +50,9 @@ st.markdown("""
 """)
 st.caption("Датасет: Workers Compensation | OpenML ID: 42876 | "
            "Выполнил: Фахрутдинов Марат Альбертович")
+
+# Индикатор режима логирования (управляется через src/config.py)
+if DEBUG:
+    st.sidebar.warning("Логирование включено (DEBUG=True)\nСм. консоль терминала.")
+else:
+    st.sidebar.caption("Логирование выключено. Включить: src/config.py → DEBUG=True")

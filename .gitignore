@@ -6,3 +6,4 @@ models/*.pkl
 data/
 .streamlit/
 *.log
+catboost_info/

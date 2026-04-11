@@ -10,9 +10,11 @@ import plotly.express as px
 import plotly.graph_objects as go
 from scipy import stats
 from src.data_loader import load_data
+from src.logger import log
 
 st.set_page_config(page_title="Анализ данных", layout="wide")
 st.title("📊 Детальный анализ датасета Workers Compensation")
+log("=== Страница 2: Анализ данных загружена ===")
 
 with st.spinner("Загрузка данных..."):
     df = load_data()
@@ -59,6 +61,7 @@ col1, col2 = st.columns(2)
 with col1:
     st.markdown("#### Тест на нормальность (D'Agostino-Pearson)")
     log_y = np.log1p(y)
+    log("Тест нормальности D'Agostino-Pearson запущен", target="UltimateIncurredClaimCost")
     stat, p_value = stats.normaltest(
         log_y.sample(min(5000, len(log_y)), random_state=42))
     st.markdown(f"Log-переменная: statistic=`{stat:.4f}`, p-value=`{p_value:.6f}`")
@@ -73,6 +76,7 @@ with col2:
     IQR = Q3 - Q1
     n_out = ((y < Q1 - 1.5*IQR) | (y > Q3 + 1.5*IQR)).sum()
     st.markdown(f"Q1=`${Q1:,.0f}` | Q3=`${Q3:,.0f}` | IQR=`${IQR:,.0f}`")
+    log("IQR выбросы", n_outliers=n_out, pct=round(n_out/len(y)*100, 1))
     st.metric("Количество выбросов", f"{n_out:,} ({n_out/len(y)*100:.1f}%)")
 
 # ── Временной анализ ─────────────────────────────────────────────────────────
@@ -167,6 +171,7 @@ if 'InitialCaseEstimate' in df.columns:
     pct_2x = ((accuracy >= 0.5) & (accuracy <= 2.0)).mean() * 100
 
     c1, c2, c3 = st.columns(3)
+    log("Анализ точности InitialEstimate vs Cost отображён")
     c1.metric("Корреляция Pearson",
               f"{df['InitialCaseEstimate'].corr(df[target]):.3f}")
     c2.metric("В пределах 2x от факта", f"{pct_2x:.1f}%")
