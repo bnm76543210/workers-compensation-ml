@@ -93,16 +93,17 @@ with tab1:
 
             try:
                 from clearml import Task
-                task = Task.init(
+                # Task.create() всегда создаёт новую задачу без синглтон-конфликта
+                task = Task.create(
                     project_name="Workers Compensation",
                     task_name="Experiment 1 — Linear Regression Baseline",
-                    task_type=Task.TaskTypes.training,
-                    reuse_last_task_id=False)
+                    task_type=Task.TaskTypes.training)
                 task.connect({"model": "LinearRegression", "test_size": 0.2})
                 logger = task.get_logger()
-                logger.report_scalar("Metrics", "R2",   0, r2)
-                logger.report_scalar("Metrics", "RMSE", 0, rmse)
-                logger.report_scalar("Metrics", "MAE",  0, mae)
+                # Правильный порядок аргументов: (title, series, value, iteration)
+                logger.report_scalar("Metrics", "R2",   value=r2,   iteration=0)
+                logger.report_scalar("Metrics", "RMSE", value=rmse, iteration=0)
+                logger.report_scalar("Metrics", "MAE",  value=mae,  iteration=0)
                 task.close()
                 log("Experiment 1 залогирован в ClearML")
                 st.info("Метрики залогированы в ClearML!")
@@ -150,20 +151,19 @@ with tab1:
                             title='Топ-10 важных признаков (XGBoost)',
                             labels={'value':'Важность', 'index':'Признак'},
                             template='plotly_white')
-            st.plotly_chart(fig_fi, use_container_width=True)
+            st.plotly_chart(fig_fi, width='stretch')
 
             try:
                 from clearml import Task, OutputModel
-                task = Task.init(
+                task = Task.create(
                     project_name="Workers Compensation",
                     task_name="Experiment 2 — XGBoost Optimized",
-                    task_type=Task.TaskTypes.training,
-                    reuse_last_task_id=False)
+                    task_type=Task.TaskTypes.training)
                 task.connect(best_params)
                 logger = task.get_logger()
-                logger.report_scalar("Metrics", "R2",   0, r2)
-                logger.report_scalar("Metrics", "RMSE", 0, rmse)
-                logger.report_scalar("Metrics", "MAE",  0, mae)
+                logger.report_scalar("Metrics", "R2",   value=r2,   iteration=0)
+                logger.report_scalar("Metrics", "RMSE", value=rmse, iteration=0)
+                logger.report_scalar("Metrics", "MAE",  value=mae,  iteration=0)
                 out_model = OutputModel(task=task, framework="XGBoost")
                 out_model.update_weights("models/XGBoost_optimized.pkl")
                 task.close()
@@ -185,7 +185,7 @@ with tab1:
         if isinstance(exp2_res, dict):
             rows.append({"Эксперимент": "Experiment 2 — XGBoost",
                          **exp2_res, "Статус": "Завершён"})
-        st.dataframe(pd.DataFrame(rows), use_container_width=True)
+        st.dataframe(pd.DataFrame(rows), width='stretch')
         log("Сводная таблица отображена", experiments=len(rows))
 
     st.markdown("---")

@@ -46,7 +46,7 @@ with col1:
     fig.update_layout(title="Оригинальное распределение выплат (USD)",
                       xaxis_title="Стоимость ($)", yaxis_title="Количество",
                       template="plotly_white")
-    st.plotly_chart(fig, use_container_width=True)
+    st.plotly_chart(fig, width='stretch')
 
 with col2:
     fig2 = go.Figure(go.Histogram(x=np.log1p(y), nbinsx=60,
@@ -54,7 +54,7 @@ with col2:
     fig2.update_layout(title="Log-преобразование log(1+y)",
                        xaxis_title="log(1 + Стоимость)",
                        template="plotly_white")
-    st.plotly_chart(fig2, use_container_width=True)
+    st.plotly_chart(fig2, width='stretch')
 
 # Нормальность и выбросы
 col1, col2 = st.columns(2)
@@ -96,7 +96,7 @@ with col1:
                     title='Средняя и медианная выплата по годам',
                     labels={'value': 'Стоимость ($)', 'variable': 'Метрика'},
                     template='plotly_white')
-    st.plotly_chart(fig_y, use_container_width=True)
+    st.plotly_chart(fig_y, width='stretch')
 
 with col2:
     MONTHS = ['Янв','Фев','Мар','Апр','Май','Июн',
@@ -111,7 +111,7 @@ with col2:
                    labels={'Среднее': 'Средняя выплата ($)'},
                    template='plotly_white', color='Среднее',
                    color_continuous_scale='blues')
-    st.plotly_chart(fig_m, use_container_width=True)
+    st.plotly_chart(fig_m, width='stretch')
 
 cnt = (df_time[df_time['AccidentYear'].between(1990, 2015)]
        .groupby('AccidentYear').size().reset_index(name='Количество'))
@@ -120,7 +120,7 @@ fig_cnt = px.bar(cnt, x='AccidentYear', y='Количество',
                  template='plotly_white', color='Количество',
                  color_continuous_scale='viridis',
                  labels={'AccidentYear': 'Год'})
-st.plotly_chart(fig_cnt, use_container_width=True)
+st.plotly_chart(fig_cnt, width='stretch')
 
 # ── Корреляционный анализ ────────────────────────────────────────────────────
 st.subheader("Корреляционный анализ")
@@ -143,7 +143,7 @@ fig_bar = px.bar(x=corr_target.values, y=corr_target.index,
                  color=corr_target.values, color_continuous_scale='RdBu_r',
                  template='plotly_white')
 fig_bar.update_layout(coloraxis_showscale=False)
-st.plotly_chart(fig_bar, use_container_width=True)
+st.plotly_chart(fig_bar, width='stretch')
 
 # ── Анализ категориальных признаков ─────────────────────────────────────────
 st.subheader("Анализ по категориальным признакам")
@@ -155,7 +155,7 @@ if cat_cols:
                      title=f"Стоимость выплат по {selected_cat}",
                      template='plotly_white',
                      labels={target: 'Стоимость ($)'}, log_y=True)
-    st.plotly_chart(fig_box, use_container_width=True)
+    st.plotly_chart(fig_box, width='stretch')
 
     grp = df.groupby(selected_cat)[target].agg(
         ['mean','median','count']).round(2)
@@ -187,4 +187,4 @@ if 'InitialCaseEstimate' in df.columns:
     fig_sc.add_trace(go.Scatter(x=[1, max_val], y=[1, max_val], mode='lines',
                                 name='Идеальная оценка',
                                 line=dict(color='red', dash='dash')))
-    st.plotly_chart(fig_sc, use_container_width=True)
+    st.plotly_chart(fig_sc, width='stretch')

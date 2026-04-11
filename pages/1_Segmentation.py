@@ -64,7 +64,7 @@ with tab1:
                     log_y=True, template='plotly_white',
                     color='Сегмент_KMeans',
                     color_discrete_sequence=px.colors.qualitative.Set2)
-    st.plotly_chart(fig_bx, use_container_width=True)
+    st.plotly_chart(fig_bx, width='stretch')
 
     # Выбор числа кластеров (Elbow)
     st.subheader("Метод локтя — выбор оптимального K")
@@ -81,7 +81,7 @@ with tab1:
         fig_elbow.update_layout(title='Метод локтя (WCSS by K)',
                                 xaxis_title='K', yaxis_title='WCSS',
                                 template='plotly_white')
-        st.plotly_chart(fig_elbow, use_container_width=True)
+        st.plotly_chart(fig_elbow, width='stretch')
 
     # Сравнение: общая vs сегментированные модели
     st.subheader("Общая модель vs Специализированные модели по сегментам")
@@ -121,7 +121,7 @@ with tab1:
                          color='R2', color_continuous_scale='greens',
                          template='plotly_white')
         fig_cmp.update_layout(yaxis_range=[0, 1])
-        st.plotly_chart(fig_cmp, use_container_width=True)
+        st.plotly_chart(fig_cmp, width='stretch')
 
         # Scatter предсказаний
         y_pred_gen = np.expm1(gen.predict(Xte))
@@ -143,7 +143,7 @@ with tab1:
             title='Факт vs Прогноз (общая модель, USD)',
             xaxis_title='Факт ($)', yaxis_title='Прогноз ($)',
             template='plotly_white', xaxis_type='log', yaxis_type='log')
-        st.plotly_chart(fig_scatter, use_container_width=True)
+        st.plotly_chart(fig_scatter, width='stretch')
 
 # ── TAB 2: DBSCAN ────────────────────────────────────────────────────────────
 with tab2:
@@ -194,7 +194,7 @@ with tab2:
                                       f'+ {n_noise} выбросов (eps={eps})',
                                 template='plotly_white',
                                 color_discrete_sequence=px.colors.qualitative.Set1)
-            st.plotly_chart(fig_db, use_container_width=True)
+            st.plotly_chart(fig_db, width='stretch')
 
             # Статистика по кластерам
             noise_label = '-1'
@@ -255,7 +255,7 @@ with tab3:
                      log_y=True, template='plotly_white',
                      category_orders={'Сегмент_Domain': seg_order},
                      color='Сегмент_Domain', color_discrete_map=seg_colors)
-    st.plotly_chart(fig_dom, use_container_width=True)
+    st.plotly_chart(fig_dom, width='stretch')
 
     # Сравнение моделей по доменным сегментам
     if st.button("Сравнить модели (доменная сегментация)",
@@ -291,4 +291,4 @@ with tab3:
                             color='R2', color_continuous_scale='blues',
                             template='plotly_white')
         fig_cmp_d.update_layout(yaxis_range=[0, 1])
-        st.plotly_chart(fig_cmp_d, use_container_width=True)
+        st.plotly_chart(fig_cmp_d, width='stretch')

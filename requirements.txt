@@ -14,3 +14,4 @@ clearml>=1.13.0
 catboost>=1.2.0
 lime>=0.2.0
 scipy>=1.10.0
+statsmodels>=0.14.0

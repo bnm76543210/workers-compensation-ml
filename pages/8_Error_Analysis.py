@@ -74,7 +74,7 @@ with col1:
     fig_hist.add_vline(x=errors_df['Абс_ошибка ($)'].mean(),
                        line_dash='dash', line_color='red',
                        annotation_text="Среднее")
-    st.plotly_chart(fig_hist, use_container_width=True)
+    st.plotly_chart(fig_hist, width='stretch')
 
 with col2:
     sample_idx = np.random.RandomState(42).choice(
@@ -93,7 +93,7 @@ with col2:
                          xaxis_title="Факт ($)", yaxis_title="Прогноз ($)",
                          template='plotly_white', xaxis_type='log',
                          yaxis_type='log')
-    st.plotly_chart(fig_sc, use_container_width=True)
+    st.plotly_chart(fig_sc, width='stretch')
 
 # ── Анализ ошибок по ценовым сегментам ──────────────────────────────────────
 st.subheader("Анализ ошибок по ценовым сегментам")
@@ -118,14 +118,14 @@ with col1:
                      template='plotly_white', color='MAE ($)',
                      color_continuous_scale='reds',
                      labels={'Сегмент': 'Ценовой сегмент'})
-    st.plotly_chart(fig_seg, use_container_width=True)
+    st.plotly_chart(fig_seg, width='stretch')
 
 with col2:
     fig_mape = px.bar(seg_stats.reset_index(), x='Сегмент', y='MAPE (%)',
                       title='MAPE (%) по ценовым сегментам',
                       template='plotly_white', color='MAPE (%)',
                       color_continuous_scale='oranges')
-    st.plotly_chart(fig_mape, use_container_width=True)
+    st.plotly_chart(fig_mape, width='stretch')
 
 st.info("Наибольшие абсолютные ошибки (MAE) — в сегменте >$50K, "
         "но наибольшая относительная ошибка (MAPE) — в сегменте <$500: "
@@ -173,4 +173,4 @@ if not filtered.empty:
                        color_continuous_scale='reds',
                        log_x=True, log_y=True,
                        opacity=0.6)
-    st.plotly_chart(fig_f, use_container_width=True)
+    st.plotly_chart(fig_f, width='stretch')

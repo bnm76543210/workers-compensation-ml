@@ -88,7 +88,7 @@ with tab1:
         'Значение признака': sample.iloc[idx].values.round(4),
         'SHAP-вклад': shap_values[idx].round(4),
     }).sort_values('SHAP-вклад', key=abs, ascending=False)
-    st.dataframe(shap_df, use_container_width=True)
+    st.dataframe(shap_df, width='stretch')
 
 # ── TAB 2: LIME ──────────────────────────────────────────────────────────────
 with tab2:
@@ -141,7 +141,7 @@ with tab2:
                     xaxis_title="Вклад в предсказание (log-шкала)",
                     template='plotly_white',
                     height=400)
-                st.plotly_chart(fig_lime, use_container_width=True)
+                st.plotly_chart(fig_lime, width='stretch')
 
                 # Предсказание
                 pred_log = model.predict(X_test.values[[lime_idx]])[0]
@@ -201,7 +201,7 @@ with tab3:
             title=f"Partial Dependence Plot: {feat1}",
             xaxis_title=feat1, yaxis_title="Среднее предсказание ($)",
             template='plotly_white')
-        st.plotly_chart(fig_pdp, use_container_width=True)
+        st.plotly_chart(fig_pdp, width='stretch')
         st.caption(
             f"График показывает, как изменяется средняя прогнозируемая "
             f"стоимость выплаты при изменении '{feat1}', "
@@ -242,4 +242,4 @@ with tab3:
             title=f"2D PDP: {feat1} × {feat2}",
             xaxis_title=feat1, yaxis_title=feat2,
             template='plotly_white')
-        st.plotly_chart(fig_2d, use_container_width=True)
+        st.plotly_chart(fig_2d, width='stretch')

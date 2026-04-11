@@ -89,7 +89,7 @@ with tab1:
         fig_kf.add_hline(y=np.mean(fold_scores), line_dash='dash',
                          line_color='red',
                          annotation_text=f"Среднее R2={np.mean(fold_scores):.4f}")
-        st.plotly_chart(fig_kf, use_container_width=True)
+        st.plotly_chart(fig_kf, width='stretch')
 
         st.info(f"Малое стандартное отклонение ({np.std(fold_scores):.4f}) "
                 "говорит о стабильности модели — она не переобучается.")
@@ -192,7 +192,7 @@ with tab2:
         fig_hist.update_layout(title="История оптимизации Optuna",
                                xaxis_title="Итерация", yaxis_title="R2",
                                template="plotly_white")
-        st.plotly_chart(fig_hist, use_container_width=True)
+        st.plotly_chart(fig_hist, width='stretch')
 
         # Важность гиперпараметров
         try:
@@ -205,7 +205,7 @@ with tab2:
                              template='plotly_white',
                              color='Важность',
                              color_continuous_scale='oranges')
-            st.plotly_chart(fig_imp, use_container_width=True)
+            st.plotly_chart(fig_imp, width='stretch')
         except Exception:
             pass
 
@@ -264,7 +264,7 @@ with tab3:
                     title="Кривая обучения LightGBM с Early Stopping",
                     xaxis_title="Итерация", yaxis_title="Val Loss (L2)",
                     template="plotly_white")
-                st.plotly_chart(fig_es, use_container_width=True)
+                st.plotly_chart(fig_es, width='stretch')
 
         st.success(f"Early Stopping сэкономил {500-best_iter} лишних итераций!")
         st.info("Без Early Stopping модель продолжила бы переобучаться "

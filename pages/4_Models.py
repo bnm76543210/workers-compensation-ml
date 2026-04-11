@@ -135,7 +135,7 @@ with tab1:
         fig.update_layout(barmode='group', template='plotly_white',
                           title='Сравнение моделей по метрикам',
                           xaxis_tickangle=-20)
-        st.plotly_chart(fig, use_container_width=True)
+        st.plotly_chart(fig, width='stretch')
 
         # Лучшая модель: Predicted vs Actual
         best_name = max(st.session_state['base_results'],
@@ -159,7 +159,7 @@ with tab1:
         fig_sc.add_trace(go.Scatter(x=[0, max_v], y=[0, max_v], mode='lines',
                                     line=dict(color='red', dash='dash'),
                                     name='Идеал'))
-        st.plotly_chart(fig_sc, use_container_width=True)
+        st.plotly_chart(fig_sc, width='stretch')
 
 # ── TAB 2: Ансамблевые методы ────────────────────────────────────────────────
 with tab2:
@@ -218,4 +218,4 @@ with tab2:
                              color='R2', color_continuous_scale='greens',
                              labels={'x': 'Модель'})
             fig_all.update_layout(xaxis_tickangle=-30)
-            st.plotly_chart(fig_all, use_container_width=True)
+            st.plotly_chart(fig_all, width='stretch')

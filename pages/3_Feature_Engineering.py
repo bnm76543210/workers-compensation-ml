@@ -57,7 +57,7 @@ desc_df = pd.DataFrame([
     {"Признак": f, "Описание": fe_desc.get(f, "—")}
     for f in new_features
 ])
-st.dataframe(desc_df, use_container_width=True)
+st.dataframe(desc_df, width='stretch')
 
 # ── Обработка выбросов (IQR) ─────────────────────────────────────────────────
 st.subheader("Обработка выбросов (IQR-метод)")
@@ -78,7 +78,7 @@ fig_box.add_trace(go.Box(y=y, name="Все данные",
                           marker_color='steelblue', boxpoints='outliers'))
 fig_box.update_layout(title="Boxplot целевой переменной (выбросы выделены)",
                       yaxis_title="Стоимость ($)", template="plotly_white")
-st.plotly_chart(fig_box, use_container_width=True)
+st.plotly_chart(fig_box, width='stretch')
 
 st.info(f"В модели применяется **log1p-преобразование** целевой переменной, "
         f"что нивелирует влияние выбросов без их удаления.")
@@ -94,7 +94,7 @@ if available:
                                 title=f"Распределение: {selected}",
                                 template='plotly_white',
                                 color_discrete_sequence=['steelblue'])
-        st.plotly_chart(fig_hist, use_container_width=True)
+        st.plotly_chart(fig_hist, width='stretch')
     with col2:
         sample = df_fe[[selected, target]].dropna().sample(
             min(2000, len(df_fe)), random_state=42)
@@ -104,7 +104,7 @@ if available:
                             labels={target: 'UltimateIncurredClaimCost ($)'},
                             template='plotly_white',
                             trendline='ols')
-        st.plotly_chart(fig_sc, use_container_width=True)
+        st.plotly_chart(fig_sc, width='stretch')
 
 # ── Корреляция признаков с целевой ──────────────────────────────────────────
 st.subheader("Корреляция признаков с целевой переменной")
@@ -119,7 +119,7 @@ fig_c = px.bar(x=corr_target.values, y=corr_target.index,
                color_continuous_scale='RdBu_r',
                template='plotly_white')
 fig_c.update_layout(coloraxis_showscale=False)
-st.plotly_chart(fig_c, use_container_width=True)
+st.plotly_chart(fig_c, width='stretch')
 
 # ── PCA ─────────────────────────────────────────────────────────────────────
 st.subheader("PCA — Уменьшение размерности")
@@ -144,7 +144,7 @@ fig_var = px.bar(x=[f"PC{i+1}" for i in range(n_pca)],
                  template='plotly_white',
                  color=pca.explained_variance_ratio_,
                  color_continuous_scale='blues')
-st.plotly_chart(fig_var, use_container_width=True)
+st.plotly_chart(fig_var, width='stretch')
 st.info(f"Две первые компоненты объясняют "
         f"{pca.explained_variance_ratio_[:2].sum()*100:.1f}% дисперсии.")
 
@@ -161,7 +161,7 @@ fig_pca = px.scatter(x=components[sample_idx, 0],
                      labels={'x': 'PC1', 'y': 'PC2', 'color': 'log(стоимость)'},
                      color_continuous_scale='viridis',
                      template='plotly_white')
-st.plotly_chart(fig_pca, use_container_width=True)
+st.plotly_chart(fig_pca, width='stretch')
 
 # ── t-SNE ───────────────────────────────────────────────────────────────────
 st.subheader("t-SNE — Нелинейная визуализация многомерных данных")
@@ -189,6 +189,6 @@ if st.button("Запустить t-SNE", type="primary", key="btn_tsne"):
                                   'color': 'log(стоимость)'},
                           color_continuous_scale='plasma',
                           template='plotly_white')
-    st.plotly_chart(fig_tsne, use_container_width=True)
+    st.plotly_chart(fig_tsne, width='stretch')
     st.success("t-SNE построен! Видимые кластеры соответствуют группам "
                "страховых случаев с похожими характеристиками.")
